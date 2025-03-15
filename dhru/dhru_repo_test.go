@@ -6,12 +6,12 @@ import (
 	"testing"
 )
 
-func TestList_UnmarshalJSON(t *testing.T) {
+func TestMapImeiServiceList(t *testing.T) {
 	jsonData, err := os.ReadFile("services.json")
 	if err != nil {
 		t.Fatalf("error reading JSON: %v", err)
 	}
-	services, err := flattenIMEIServiceList(jsonData)
+	services, err := mapImeiServiceList(jsonData)
 	if err != nil {
 		t.Fatalf("error unmarshaling JSON: %v", err)
 	}
@@ -24,14 +24,14 @@ func TestList_UnmarshalJSON(t *testing.T) {
 	}
 }
 
-func TestDhru_GetAccountInfo(t *testing.T) {
+func TestMapAccountInfo(t *testing.T) {
 	jsonData, err := os.ReadFile("services.json")
 	if err != nil {
 		t.Fatalf("error reading JSON: %v", err)
 	}
-	accountInfo, err := mapAccountInfo(jsonData)
+	parsedAccountInfo, err := mapAccountInfo(jsonData)
 	if err != nil {
 		t.Fatalf("error unmarshaling JSON: %v", err)
 	}
-	fmt.Printf("\nAccountInfo:\n%v\n", accountInfo)
+	fmt.Printf("\nAccountInfo:\n%v\n", parsedAccountInfo)
 }
