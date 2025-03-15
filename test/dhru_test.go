@@ -9,14 +9,21 @@ import (
 	"testing"
 )
 
-func TestDhru_GetAccountInfoSuccess(t *testing.T) {
+var apiURL string
+var apiKey string
+var username string
+
+func init() {
 	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	apiKey := os.Getenv("DHRU_APIKEY")
-	username := os.Getenv("DHRU_USERNAME")
-	apiURL := os.Getenv("DHRU_URL")
+	apiKey = os.Getenv("DHRU_APIKEY")
+	username = os.Getenv("DHRU_USERNAME")
+	apiURL = os.Getenv("DHRU_URL")
+}
+
+func TestDhru_GetAccountInfoSuccess(t *testing.T) {
 	dhruApi, err := dhru.FindApi(apiURL)
 	if err != nil {
 		t.Error(err)
@@ -36,13 +43,6 @@ func TestDhru_GetAccountInfoSuccess(t *testing.T) {
 }
 
 func TestDhru_GetAccountInfoFail(t *testing.T) {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-	apiKey := os.Getenv("DHRU_APIKEY")
-	username := os.Getenv("DHRU_USERNAME")
-	apiURL := os.Getenv("DHRU_URL")
 	dhruApi, err := dhru.FindApi(apiURL)
 	if err != nil {
 		t.Error(err)
@@ -62,14 +62,6 @@ func TestDhru_GetAccountInfoFail(t *testing.T) {
 }
 
 func TestDhru_GetImeiList(t *testing.T) {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-	apiKey := os.Getenv("DHRU_APIKEY")
-	username := os.Getenv("DHRU_USERNAME")
-	apiURL := os.Getenv("DHRU_URL")
-
 	dhruApi, err := dhru.FindApi(apiURL)
 	if err != nil {
 		t.Error(err)
