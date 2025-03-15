@@ -2,8 +2,6 @@ package dhru
 
 import (
 	"context"
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"net/url"
 	"strings"
@@ -94,14 +92,4 @@ func FindApi(inputURL string) (string, error) {
 	case <-done:
 		return "", fmt.Errorf("could not find a valid endpoint")
 	}
-}
-
-// IsValidXML checks if the provided byte slice contains valid XML
-func IsValidXML(data []byte) bool {
-	return xml.Unmarshal(data, new(interface{})) == nil
-}
-
-// IsValidJSON checks if the provided byte slice contains valid JSON
-func IsValidJSON(data []byte) bool {
-	return json.Unmarshal(data, new(interface{})) == nil
 }
