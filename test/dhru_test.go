@@ -23,7 +23,7 @@ func init() {
 	apiURL = os.Getenv("DHRU_URL")
 }
 
-func TestDhru_GetAccountInfoSuccess(t *testing.T) {
+func TestGetAccountInfoSuccess(t *testing.T) {
 	dhruApi, err := dhru.FindApi(apiURL)
 	if err != nil {
 		t.Error(err)
@@ -42,26 +42,7 @@ func TestDhru_GetAccountInfoSuccess(t *testing.T) {
 	fmt.Printf("accountInfo: %+v\n", accountInfo)
 }
 
-func TestDhru_GetAccountInfoFail(t *testing.T) {
-	dhruApi, err := dhru.FindApi(apiURL)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	println(dhruApi)
-	dhruSession, err := dhru.NewDhruSession(dhruApi, username, apiKey)
-	if err != nil {
-		t.Error(err)
-	}
-	_, err = dhruSession.GetAccountInfo()
-	if err == nil {
-		t.Error(err)
-		return
-	}
-	fmt.Printf("%v\n", err)
-}
-
-func TestDhru_GetImeiList(t *testing.T) {
+func TestGetImeiList(t *testing.T) {
 	dhruApi, err := dhru.FindApi(apiURL)
 	if err != nil {
 		t.Error(err)

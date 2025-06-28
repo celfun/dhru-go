@@ -23,19 +23,31 @@ func newRepo(serverUrl *url.URL, username string, apiKey string) *repo {
 		apiKey:    apiKey,
 	}
 }
-func (r *repo) doRequest(action string) ([]byte, error) {
+func (r *repo) makeApiRequest(action string, dhruParams map[string]string) ([]byte, error) {
+	var sb strings.Builder
+	if dhruParams != nil {
+		sb.WriteString("<PARAMETERS>")
+		for key, value := range dhruParams {
+			escapedValue := value
+			sb.WriteString(fmt.Sprintf("<%s>%s</%s>", key, escapedValue, key))
+		}
+		sb.WriteString("</PARAMETERS>")
+	}
 	// Create URL without query parameters
 	u := r.serverUrl // Create a copy of the URL
 
 	// Create values for parameters
-	params := url.Values{}
-	params.Set("requestformat", "JSON")
-	params.Set("action", action)
-	params.Set("username", r.username)
-	params.Set("apiaccesskey", r.apiKey)
+	reqParams := url.Values{}
+	reqParams.Set("requestformat", "JSON")
+	reqParams.Set("action", action)
+	reqParams.Set("username", r.username)
+	reqParams.Set("apiaccesskey", r.apiKey)
+	if sb.String() != "" {
+		reqParams.Set("parameters", sb.String())
+	}
 
-	// Create a new request with POST method, passing params in the body
-	req, err := http.NewRequest(http.MethodPost, u.String(), strings.NewReader(params.Encode()))
+	// Create a new request with POST method, passing reqParams in the body
+	req, err := http.NewRequest(http.MethodPost, u.String(), strings.NewReader(reqParams.Encode()))
 	if err != nil {
 		log.Fatal("Error creating request:", err)
 	}
@@ -43,10 +55,6 @@ func (r *repo) doRequest(action string) ([]byte, error) {
 	// Set the content type header for form data
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
-
-	if req.URL.String() == "https://www.directcodes.org/connect/api/index.php" {
-		println("Request URL:", req.URL.String())
-	}
 
 	// Send the request using default client
 	httpClient := &http.Client{}
@@ -57,9 +65,16 @@ func (r *repo) doRequest(action string) ([]byte, error) {
 
 	body, err := io.ReadAll(resp.Body)
 
+	defer func(Body io.ReadCloser) {
+		err2 := Body.Close()
+		if err2 != nil {
+			return
+		}
+	}(resp.Body)
 	var apiData apiResponse
-	if err := json.Unmarshal(body, &apiData); err != nil {
-		return nil, fmt.Errorf("error unmarshaling JSON: %s", err)
+	err = json.Unmarshal(body, &apiData)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing response: %s", err)
 	}
 	if apiData.ERROR != nil {
 		return nil, fmt.Errorf("error from server: %s", apiData.ERROR)
@@ -69,7 +84,7 @@ func (r *repo) doRequest(action string) ([]byte, error) {
 }
 
 func (r *repo) ping() bool {
-	_, err := r.doRequest("accountinfo")
+	_, err := r.makeApiRequest("accountinfo", nil)
 	if err != nil {
 		if strings.Contains(err.Error(), "error from server") {
 			return true
@@ -79,7 +94,7 @@ func (r *repo) ping() bool {
 }
 
 func (r *repo) getAccountInfo() (accountDetails, error) {
-	jsonData, err := r.doRequest("accountinfo")
+	jsonData, err := r.makeApiRequest("accountinfo", nil)
 	if err != nil {
 		return accountDetails{}, err
 	}
@@ -95,7 +110,7 @@ func (r *repo) getAccountInfo() (accountDetails, error) {
 }
 
 func (r *repo) getImeiServiceList() (map[string]group, error) {
-	jsonData, err := r.doRequest("imeiservicelist")
+	jsonData, err := r.makeApiRequest("imeiservicelist", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,5 +119,5 @@ func (r *repo) getImeiServiceList() (map[string]group, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling JSON: %v", err)
 	}
-	return root.SUCCESS[0].List.Groups, nil
+	return root.SUCCESS[0].List, nil
 }

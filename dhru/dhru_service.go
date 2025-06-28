@@ -2,7 +2,6 @@ package dhru
 
 import (
 	"net/url"
-	"sort"
 	"strconv"
 )
 
@@ -20,7 +19,7 @@ func NewDhruSession(inputURL string, username string, apiKey string) (*Session, 
 	}, nil
 }
 
-func (s *Session) GetAccountInfo() (*AccountDetails, error) {
+func (s *Session) GetAccountInfo() (*AccountInfo, error) {
 	accountInfoData, err := s.repo.getAccountInfo()
 	if err != nil {
 		return nil, err
@@ -29,19 +28,19 @@ func (s *Session) GetAccountInfo() (*AccountDetails, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &AccountDetails{
+	return &AccountInfo{
 		Credits:  floatCredits,
 		Currency: accountInfoData.Currency,
 		Email:    accountInfoData.Mail,
 	}, nil
 }
 
-func (s *Session) GetImeiServiceList() ([]FlatService, error) {
+func (s *Session) GetImeiServiceList() ([]Service, error) {
 	imeiServiceListData, err := s.repo.getImeiServiceList()
 	if err != nil {
 		return nil, err
 	}
-	var flatServices []FlatService
+	var flatServices []Service
 
 	for groupName, groupData := range imeiServiceListData {
 		// Process each service in the group
@@ -54,7 +53,7 @@ func (s *Session) GetImeiServiceList() ([]FlatService, error) {
 			if err2 != nil {
 				return nil, err2
 			}
-			flatService := FlatService{
+			flatService := Service{
 				GroupName:         groupName,
 				GroupType:         service.ServiceType,
 				ServiceID:         intServiceID,
@@ -91,10 +90,6 @@ func (s *Session) GetImeiServiceList() ([]FlatService, error) {
 			flatServices = append(flatServices, flatService)
 		}
 	}
-	// Sort by Age (ascending)
-	sort.Slice(flatServices, func(i, j int) bool {
-		return flatServices[i].ServiceID < flatServices[j].ServiceID
-	})
 
 	return flatServices, nil
 }

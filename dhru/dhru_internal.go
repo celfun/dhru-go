@@ -1,9 +1,5 @@
 package dhru
 
-import (
-	"encoding/json"
-)
-
 // apiResponse contains SUCCESS array and API version
 type apiResponse struct {
 	SUCCESS    []successItem `json:"SUCCESS"`
@@ -20,8 +16,9 @@ type errorItem struct {
 type successItem struct {
 	AccountInfo accountDetails `json:"AccountInfo"`
 	//AccoutInfo  accountDetails `json:"AccoutInfo"` // Note: keeping the typo as in original JSON
-	Message string   `json:"MESSAGE"`
-	List    dhruList `json:"LIST"`
+	Message string `json:"MESSAGE"`
+	//List    dhruList `json:"LIST"`
+	List map[string]group `json:"LIST"` // Direct map instead of RawMessage
 }
 
 // accountDetails contains account-related information
@@ -94,22 +91,4 @@ type customField struct {
 	RegExpr      string `json:"regexpr"`
 	AdminOnly    string `json:"adminonly"`
 	Enc          string `json:"enc"`
-}
-
-// UnmarshalJSON Implement UnmarshalJSON to handle the dynamic group names
-func (l *dhruList) UnmarshalJSON(data []byte) error {
-	var raw map[string]json.RawMessage
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	l.Groups = make(map[string]group)
-	for groupName, groupData := range raw {
-		var group group
-		if err := json.Unmarshal(groupData, &group); err != nil {
-			return err
-		}
-		l.Groups[groupName] = group
-	}
-	return nil
 }

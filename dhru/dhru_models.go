@@ -1,14 +1,14 @@
 package dhru
 
-// AccountDetails contains user account information
-type AccountDetails struct {
+// AccountInfo contains user account information
+type AccountInfo struct {
 	Email    string  `json:"mail"`
 	Credits  float64 `json:"credit"`
 	Currency string  `json:"currency"`
 }
 
-// FlatService represents the flattened service structure
-type FlatService struct {
+// Service represents the flattened service structure
+type Service struct {
 	GroupName         string        `json:"group_name"`
 	GroupType         string        `json:"group_type"`
 	ServiceID         int64         `json:"service_id"`
